@@ -75,12 +75,19 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
 
-        // Con allowCredentials(true) es mejor NO usar "*", pero allowedOriginPatterns lo permite.
-        cfg.setAllowedOriginPatterns(List.of("http://localhost:5173", "http://127.0.0.1:5173", "*"));
+        // ✅ CORS para local + Amplify.
+        // Importante: Amplify siempre sirve por HTTPS. Si tu backend es HTTP, el navegador
+        // bloqueará por Mixed Content. Para producción usa HTTPS en el backend.
+        cfg.setAllowedOriginPatterns(List.of(
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            "https://*.amplifyapp.com"
+        ));
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setExposedHeaders(List.of("Authorization"));
-        cfg.setAllowCredentials(true);
+        // No usamos cookies; JWT va en Authorization header.
+        cfg.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);
